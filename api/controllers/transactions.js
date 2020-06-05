@@ -94,6 +94,10 @@ module.exports.edit = async (req, res) => {
       transaction.user = req.body.user;
     }
 
+    if (req.body.isComplete) {
+      transaction.isComplete = req.body.isComplete;
+    }
+
     await transaction.save();
 
     transaction = await transaction.populate('books user').execPopulate();
