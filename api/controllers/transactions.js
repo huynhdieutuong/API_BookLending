@@ -6,9 +6,15 @@ module.exports.index = async (req, res) => {
   var transactions;
 
   if (req.user.isAdmin) {
-    transactions = await Transaction.find().sort('-date');
+    transactions = await Transaction.find()
+      .sort('-date')
+      .populate({ path: 'books', select: 'title' })
+      .populate({ path: 'user', select: 'name' });
   } else {
-    transactions = await Transaction.find({ user: req.user.id }).sort('-date');
+    transactions = await Transaction.find({ user: req.user.id })
+      .sort('-date')
+      .populate({ path: 'books', select: 'title' })
+      .populate({ path: 'user', select: 'name' });
   }
 
   var filtered = [...transactions];
