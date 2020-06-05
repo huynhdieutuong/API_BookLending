@@ -68,6 +68,8 @@ module.exports.create = async (req, res) => {
 
   var transaction = await Transaction.create(newTransaction);
 
+  transaction = await transaction.populate('books user').execPopulate();
+
   res.json(transaction);
 };
 
@@ -93,6 +95,8 @@ module.exports.edit = async (req, res) => {
     }
 
     await transaction.save();
+
+    transaction = await transaction.populate('books user').execPopulate();
 
     res.json(transaction);
   } catch (error) {
