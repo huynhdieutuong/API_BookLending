@@ -1,14 +1,14 @@
-const calPagination = require("../../utils/pagination");
-const Transaction = require("../../models/Transaction");
+const calPagination = require('../../utils/pagination');
+const Transaction = require('../../models/Transaction');
 
 // Show all transactions
 module.exports.index = async (req, res) => {
   var transactions;
 
   if (req.user.isAdmin) {
-    transactions = await Transaction.find();
+    transactions = await Transaction.find().sort('-date');
   } else {
-    transactions = await Transaction.find({ user: req.user.id });
+    transactions = await Transaction.find({ user: req.user.id }).sort('-date');
   }
 
   var filtered = [...transactions];
@@ -16,7 +16,7 @@ module.exports.index = async (req, res) => {
   // Search
   if (req.query.q) {
     filtered = transactions.filter(
-      transaction =>
+      (transaction) =>
         transaction.id.toLowerCase().indexOf(req.query.q.toLowerCase()) !== -1
     );
   }
@@ -26,7 +26,7 @@ module.exports.index = async (req, res) => {
 
   res.json({
     transactions: result.filtered,
-    pagination: result.pagination
+    pagination: result.pagination,
   });
 };
 
@@ -34,28 +34,28 @@ module.exports.index = async (req, res) => {
 module.exports.view = async (req, res) => {
   try {
     var transaction = await Transaction.findById(req.params.id).populate(
-      "books user"
+      'books user'
     );
 
     if (!transaction) {
-      return res.status(404).json({ errors: ["Transaction not found"] });
+      return res.status(404).json({ errors: ['Transaction not found'] });
     }
 
     if (transaction.user.id !== req.user.id && !req.user.isAdmin) {
       return res
         .status(401)
-        .json({ errors: ["User is not authorized to view this transaction"] });
+        .json({ errors: ['User is not authorized to view this transaction'] });
     }
 
     res.json(transaction);
   } catch (error) {
-    return res.status(404).json({ errors: ["Transaction not found"] });
+    return res.status(404).json({ errors: ['Transaction not found'] });
   }
 };
 
 // Create transaction
 module.exports.create = async (req, res) => {
-  if (typeof req.body.books === "string") {
+  if (typeof req.body.books === 'string') {
     req.body.books = [req.body.books];
   }
   var newTransaction = req.body;
@@ -71,11 +71,11 @@ module.exports.edit = async (req, res) => {
     var transaction = await Transaction.findById(req.params.id);
 
     if (!transaction) {
-      return res.status(404).json({ errors: ["Transaction not found"] });
+      return res.status(404).json({ errors: ['Transaction not found'] });
     }
 
     if (req.body.books) {
-      if (typeof req.body.books === "string") {
+      if (typeof req.body.books === 'string') {
         transaction.books = [req.body.books];
       } else {
         transaction.books = req.body.books;
@@ -90,7 +90,7 @@ module.exports.edit = async (req, res) => {
 
     res.json(transaction);
   } catch (error) {
-    return res.status(404).json({ errors: ["Transaction not found"] });
+    return res.status(404).json({ errors: ['Transaction not found'] });
   }
 };
 
@@ -100,14 +100,14 @@ module.exports.deleteTran = async (req, res) => {
     var transaction = await Transaction.findById(req.params.id);
 
     if (!transaction) {
-      return res.status(404).json({ errors: ["Transaction not found"] });
+      return res.status(404).json({ errors: ['Transaction not found'] });
     }
 
     await transaction.remove();
 
     res.json({});
   } catch (error) {
-    return res.status(404).json({ errors: ["Transaction not found"] });
+    return res.status(404).json({ errors: ['Transaction not found'] });
   }
 };
 
@@ -117,7 +117,7 @@ module.exports.complete = async (req, res) => {
     var transaction = await Transaction.findById(req.params.id);
 
     if (!transaction) {
-      return res.status(404).json({ errors: ["Transaction not found"] });
+      return res.status(404).json({ errors: ['Transaction not found'] });
     }
 
     transaction.isComplete = !transaction.isComplete;
@@ -125,6 +125,6 @@ module.exports.complete = async (req, res) => {
 
     res.json(transaction);
   } catch (error) {
-    return res.status(404).json({ errors: ["Transaction not found"] });
+    return res.status(404).json({ errors: ['Transaction not found'] });
   }
 };
