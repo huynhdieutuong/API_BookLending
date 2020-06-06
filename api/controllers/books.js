@@ -5,7 +5,7 @@ const calPagination = require('../../utils/pagination');
 
 // Show all books
 module.exports.index = async (req, res) => {
-  var books = await Book.find().sort('-date').select('-description');
+  var books = await Book.find().sort('-date');
   var filtered = [...books];
 
   if (req.query.q) {
