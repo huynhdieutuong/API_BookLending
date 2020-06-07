@@ -106,6 +106,10 @@ module.exports.deleteUser = async (req, res) => {
     }
 
     await user.remove();
+
+    // Also remove user's transactions
+    await Transaction.deleteMany({ user: req.params.id });
+
     res.json({});
   } catch (error) {
     return res.status(404).json({ errors: ['User not found'] });
