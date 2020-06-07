@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const calPagination = require('../../utils/pagination');
 const User = require('../../models/User');
+const Transaction = require('../../models/Transaction');
 
 // Show all users
 module.exports.index = async (req, res) => {
@@ -41,7 +42,11 @@ module.exports.view = async (req, res) => {
       return res.status(404).json({ errors: ['User not found'] });
     }
 
-    res.json(user);
+    var transactions = await Transaction.find({ user: req.params.id })
+      .sort('-date')
+      .populate({ path: 'books', select: 'title' });
+
+    res.json({ user, transactions: transactions.slice(0, 10) });
   } catch (error) {
     return res.status(404).json({ errors: ['User not found'] });
   }
