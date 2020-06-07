@@ -11,7 +11,8 @@ module.exports.index = async (req, res) => {
   if (req.query.q) {
     filtered = users.filter(
       (user) =>
-        user.name.toLowerCase().indexOf(req.query.q.toLowerCase()) !== -1
+        user.name.toLowerCase().indexOf(req.query.q.toLowerCase()) !== -1 ||
+        user.email.toLowerCase().indexOf(req.query.q.toLowerCase()) !== -1
     );
   }
 
@@ -68,16 +69,31 @@ module.exports.edit = async (req, res) => {
   var user = req.user;
 
   for (let x in req.body) {
-    if (x === 'password') {
-      user.password = await bcrypt.hash(req.body.password, 10);
-    } else {
-      user[x] = req.body[x];
-    }
+    user[x] = req.body[x];
   }
 
   await user.save();
 
   res.json(user);
+};
+
+// Change password user
+module.exports.changePassword = async (req, res) => {
+  try {
+    var user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ errors: ['User not found'] });
+    }
+
+    user.password = await bcrypt.hash(req.body.password, 10);
+
+    await user.save();
+
+    res.json({ msg: `Password changed for user: ${user.email}` });
+  } catch (error) {
+    return res.status(404).json({ errors: ['User not found'] });
+  }
 };
 
 // Delete user

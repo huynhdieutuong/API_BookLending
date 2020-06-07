@@ -1,7 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const { index, view, add, edit, deleteUser } = require('../controllers/users');
+const {
+  index,
+  view,
+  add,
+  edit,
+  deleteUser,
+  changePassword,
+} = require('../controllers/users');
 
 const validations = require('../validations/users');
 
@@ -21,6 +28,9 @@ router.post('/add', validations.add, add);
 
 // Edit user
 router.put('/:id/edit', validations.edit, edit);
+
+// Change password user
+router.put('/:id/password', changePassword);
 
 // Delete user
 router.delete('/:id/delete', deleteUser);
