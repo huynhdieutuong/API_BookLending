@@ -132,7 +132,7 @@ module.exports.number = async (req, res) => {
   });
 
   if (number <= 0) {
-    cart.splice(indexItem, 1);
+    cart[indexItem].quantity = 1;
   } else {
     cart[indexItem].quantity = number;
   }
