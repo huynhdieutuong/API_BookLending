@@ -1,18 +1,29 @@
-const CartSession = require("../../models/CartSession");
-const Transaction = require("../../models/Transaction");
+const CartSession = require('../../models/CartSession');
+const Transaction = require('../../models/Transaction');
+
+// Index
+module.exports.index = async (req, res) => {
+  var cartSession = await CartSession.findOne({ user: req.user.id }).populate(
+    'cart.book'
+  );
+
+  if (!cartSession) {
+    cartSession = await CartSession.create({ cart: [], user: req.user.id });
+  }
+
+  var cart = cartSession.cart;
+
+  res.json(cart);
+};
 
 // Add to cart
 module.exports.add = async (req, res) => {
-  var cartSession = await CartSession.findById(req.signedCookies.cartSession);
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
+  var cartSession = await CartSession.findOne({ user: req.user.id });
 
   var cart = cartSession.cart;
   if (cart.length) {
     var existItem = null;
-    cart.forEach(item => {
+    cart.forEach((item) => {
       if (item.book.toString() === req.params.bookId) {
         item.quantity += 1;
         existItem = item;
@@ -28,31 +39,14 @@ module.exports.add = async (req, res) => {
 
   await cartSession.save();
 
-  res.json(cartSession);
-};
-
-// Index
-module.exports.index = async (req, res) => {
-  var cartSession = await CartSession.findById(
-    req.signedCookies.cartSession
-  ).populate("cart.book");
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
-
-  var cart = cartSession.cart;
+  cartSession = await cartSession.populate('cart.book').execPopulate();
 
   res.json(cart);
 };
 
 // Delete book
 module.exports.deleteBook = async (req, res) => {
-  var cartSession = await CartSession.findById(req.signedCookies.cartSession);
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
+  var cartSession = await CartSession.findOne({ user: req.user.id });
 
   var cart = cartSession.cart;
 
@@ -64,16 +58,14 @@ module.exports.deleteBook = async (req, res) => {
 
   await cartSession.save();
 
+  cartSession = await cartSession.populate('cart.book').execPopulate();
+
   res.json(cart);
 };
 
 // Decrease number
 module.exports.decrease = async (req, res) => {
-  var cartSession = await CartSession.findById(req.signedCookies.cartSession);
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
+  var cartSession = await CartSession.findOne({ user: req.user.id });
 
   var cart = cartSession.cart;
 
@@ -93,16 +85,15 @@ module.exports.decrease = async (req, res) => {
   }
 
   await cartSession.save();
+
+  cartSession = await cartSession.populate('cart.book').execPopulate();
+
   res.json(cart);
 };
 
 // Increase number
 module.exports.increase = async (req, res) => {
-  var cartSession = await CartSession.findById(req.signedCookies.cartSession);
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
+  var cartSession = await CartSession.findOne({ user: req.user.id });
 
   var cart = cartSession.cart;
 
@@ -118,17 +109,16 @@ module.exports.increase = async (req, res) => {
   cart[indexItem].quantity += 1;
 
   await cartSession.save();
+
+  cartSession = await cartSession.populate('cart.book').execPopulate();
+
   res.json(cart);
 };
 
 // Change number
 module.exports.number = async (req, res) => {
-  const number = parseInt(req.query.number);
-  var cartSession = await CartSession.findById(req.signedCookies.cartSession);
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
+  const number = parseInt(req.body.number);
+  var cartSession = await CartSession.findOne({ user: req.user.id });
 
   var cart = cartSession.cart;
 
@@ -148,16 +138,15 @@ module.exports.number = async (req, res) => {
   }
 
   await cartSession.save();
+
+  cartSession = await cartSession.populate('cart.book').execPopulate();
+
   res.json(cart);
 };
 
 // Make transaction
 module.exports.transaction = async (req, res) => {
-  var cartSession = await CartSession.findById(req.signedCookies.cartSession);
-
-  if (!cartSession) {
-    return res.redirect("/");
-  }
+  var cartSession = await CartSession.findOne({ user: req.user.id });
 
   var cart = cartSession.cart;
 
@@ -170,7 +159,7 @@ module.exports.transaction = async (req, res) => {
 
     var newTransaction = {
       user: req.user.id,
-      books
+      books,
     };
 
     var transaction = await Transaction.create(newTransaction);

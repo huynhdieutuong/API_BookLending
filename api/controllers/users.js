@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const calPagination = require('../../utils/pagination');
 const User = require('../../models/User');
 const Transaction = require('../../models/Transaction');
+const CartSession = require('../../models/CartSession');
 
 // Show all users
 module.exports.index = async (req, res) => {
@@ -109,6 +110,9 @@ module.exports.deleteUser = async (req, res) => {
 
     // Also remove user's transactions
     await Transaction.deleteMany({ user: req.params.id });
+
+    // Also remove user's cart
+    await CartSession.findOneAndDelete({ user: req.params.id });
 
     res.json({});
   } catch (error) {
