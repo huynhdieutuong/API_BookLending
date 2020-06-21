@@ -1,5 +1,5 @@
-const bcrypt = require("bcrypt");
-const cloudinary = require("cloudinary").v2;
+const bcrypt = require('bcrypt');
+const cloudinary = require('cloudinary').v2;
 
 // Index
 module.exports.index = (req, res) => {
@@ -29,7 +29,7 @@ module.exports.avatar = async (req, res) => {
   var user = req.user;
 
   var result = await cloudinary.uploader.upload(req.file.path, {
-    public_id: "BookManagement/Avatars/" + req.file.filename
+    public_id: 'BookManagement/Avatars/' + req.file.filename,
   });
 
   user.avatarUrl = result.url;
@@ -47,5 +47,32 @@ module.exports.password = async (req, res) => {
 
   await user.save();
 
-  res.json({ alert: "Password Changed" });
+  res.json({ alert: 'Password Changed' });
+};
+
+// Create password
+module.exports.createPassword = async (req, res) => {
+  const errors = [];
+  const user = req.user;
+
+  if (user.password)
+    return res.status(400).json({ errors: ['Password already created'] });
+
+  // Validate password
+  if (!req.body.password) {
+    errors.push('Password is required');
+  } else if (req.body.password.length < 6) {
+    errors.push('Password must equal or more 6 chars');
+  }
+
+  if (errors.length) {
+    return res.status(400).json({ errors });
+  }
+
+  // Create password
+  user.password = await bcrypt.hash(req.body.password, 10);
+
+  await user.save();
+
+  res.json({ alert: 'Password Created' });
 };
