@@ -6,19 +6,13 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  phone: {
-    type: String,
-    required: true,
-  },
+  phone: String,
   email: {
     type: String,
     unique: true,
     required: true,
   },
-  password: {
-    type: String,
-    required: true,
-  },
+  password: String,
   isAdmin: {
     type: Boolean,
     default: false,
