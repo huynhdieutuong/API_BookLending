@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const fetch = require('node-fetch');
 
 const User = require('../../models/User');
 
@@ -14,14 +15,45 @@ module.exports.login = (req, res) => {
 
 // Login Social
 module.exports.loginSocial = async (req, res) => {
-  let user = await User.findOne({ email: req.body.email });
+  const { method, userID, accessToken } = req.body;
+  let data;
+
+  // Facebook
+  if (method === 'facebook') {
+    try {
+      const res = await fetch(
+        `https://graph.facebook.com/${userID}?fields=name,email&access_token=${accessToken}`
+      );
+
+      data = await res.json();
+      data.avatarUrl = `http://graph.facebook.com/${userID}/picture?type=large`;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Google
+  if (method === 'google') {
+    try {
+      const res = await fetch(
+        `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`
+      );
+
+      data = await res.json();
+      data.avatarUrl = data.picture;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  let user = await User.findOne({ email: data.email });
 
   // If not user, create new user
   if (!user) {
     const newUser = {
-      name: req.body.name,
-      email: req.body.email,
-      avatarUrl: req.body.avatarUrl,
+      name: data.name,
+      email: data.email,
+      avatarUrl: data.avatarUrl,
     };
 
     user = await User.create(newUser);
