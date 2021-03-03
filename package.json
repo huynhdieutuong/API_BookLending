@@ -21,7 +21,7 @@
     "node-fetch": "^2.6.0",
     "nodemailer": "^6.4.6",
     "path": "^0.12.7",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "shortid": "^2.2.15"
   },
   "engines": {
